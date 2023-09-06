@@ -1,15 +1,15 @@
 from __future__ import annotations
 
 import discord
-
-from typing import Any, Sequence
+import typing
+import logging
 from discord.ext import commands
-from logging import getLogger
-
-__all__: Sequence[str] = ("Bot",)
 
 
-log = getLogger(__name__)
+__all__: typing.Sequence[str] = ("Bot",)
+
+
+log = logging.getLogger(__name__)
 
 
 class Bot(commands.AutoShardedBot):
