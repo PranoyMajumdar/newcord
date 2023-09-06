@@ -1,18 +1,15 @@
 from __future__ import annotations
 
 
-from typing import TYPE_CHECKING, Sequence
+from typing import Any, Sequence
 from discord.ext import commands
 
-if TYPE_CHECKING:
-    from .bot import Bot
 
-__all__: Sequence[str] = (
-    "Cog",
-)
+__all__: Sequence[str] = ("Cog",)
 
 
 class Cog(commands.Cog):
-    """A custom implementation of commands.Cog."""
-    def __init__(self, bot: Bot) -> None:
-        super().__init__()
+    """A custom implementation of commands.Cog class."""
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)

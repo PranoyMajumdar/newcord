@@ -1,15 +1,18 @@
 from __future__ import annotations
 
 import discord
-import typing
-import logging
+from orjson import loads
+from typing import TYPE_CHECKING, Sequence, Any
+from logging import getLogger
 from discord.ext import commands
 
+if TYPE_CHECKING:
+    ...
 
-__all__: typing.Sequence[str] = ("Bot",)
+__all__: Sequence[str] = ("Bot",)
 
 
-log = logging.getLogger(__name__)
+log = getLogger(__name__)
 
 
 class Bot(commands.AutoShardedBot):

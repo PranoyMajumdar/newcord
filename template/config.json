@@ -1,0 +1,9 @@
+{
+    "token": "Your bot token",
+    "prefix": "1",
+    "testing_guild": null,
+    "cogs_dir": "cogs",
+    "cogs": [
+        "Admin"
+    ]
+}
