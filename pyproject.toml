@@ -1,23 +1,19 @@
 [tool.poetry]
-name = "manage-dpy"
+name = "dpy-template"
 version = "0.1.0"
-description = ""
-authors = ["Pranoy Majumdar <kumarricky252@gmail.com>"]
+description = "A project generated using manage-dpy"
+authors = [""]
 readme = "README.md"
-
-[tool.poetry.scripts]
-dpy = 'manage_dpy.cli:app'
-discord = 'manage_dpy.cli:app'
 
 [tool.poetry.dependencies]
 python = "^3.8"
-questionary = "^2.0.0"
-typer = {extras = ["all"], version = "^0.9.0"}
+discord-py = {version = "^2.3.2", extras = ["speed"]}
+
 
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.7.0"
-pyright = "^1.1.325"
+mypy = "^1.5.1"
 
 [build-system]
 requires = ["poetry-core"]
