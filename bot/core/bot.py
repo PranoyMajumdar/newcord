@@ -1,13 +1,16 @@
 from __future__ import annotations
 
 from logging import getLogger
-from typing import TYPE_CHECKING, Any, Sequence
+from typing import TYPE_CHECKING, Any, Sequence, Type, Union
 
 import discord
 from discord.ext import commands
+from helpers import Config
+from .context import Context
 
 if TYPE_CHECKING:
-    from configs import Config
+    from discord import Message, Interaction
+
 
 __all__: Sequence[str] = ("Bot",)
 
@@ -16,14 +19,14 @@ log = getLogger(__name__)
 
 
 class Bot(commands.AutoShardedBot):
-    def __init__(self, config: Config, *args: Any, **kwargs: Any) -> None:
+    def __init__(self) -> None:
+        self.config = Config()
         super().__init__(
-            command_prefix=commands.when_mentioned_or(*config.cogs),
+            command_prefix=commands.when_mentioned_or(*self.config.cogs),
             intents=discord.Intents.all(),
             case_insensitive=True,
             description="A template generated using manage-dpy tool.",
         )
-        self.config = config
 
     async def load_cogs(self) -> None:
         for cog in self.config.cogs:
@@ -42,5 +45,13 @@ class Bot(commands.AutoShardedBot):
         assert self.user is not None
         return log.info(f"Logged in as {self.user.name} (ID: {self.user.id})")
 
-    async def start(self) -> None: # type: ignore
+    async def start(self) -> None:  # type: ignore
         return await super().start(self.config.token, reconnect=True)
+
+    async def get_context( # type: ignore
+        self,
+        origin: Union[Message, Interaction],
+        *,
+        cls: Type[Context] = Context,
+    ) -> Any: # type: ignore
+        return await super().get_context(origin, cls=cls)
