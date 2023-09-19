@@ -4,12 +4,16 @@ from logging import getLogger
 from typing import TYPE_CHECKING, Any, Sequence, Type, Union
 
 import discord
+from beanie import init_beanie
+from config import Config
 from discord.ext import commands
-from helpers import Config
+from motor.motor_asyncio import AsyncIOMotorClient
+
 from .context import Context
+from .models import models
 
 if TYPE_CHECKING:
-    from discord import Message, Interaction
+    from discord import Interaction, Message
 
 
 __all__: Sequence[str] = ("Bot",)
@@ -22,13 +26,19 @@ class Bot(commands.AutoShardedBot):
     def __init__(self) -> None:
         self.config = Config()
         super().__init__(
-            command_prefix=commands.when_mentioned_or(*self.config.cogs),
+            command_prefix=commands.when_mentioned_or(self.config.prefix),
             intents=discord.Intents.all(),
             case_insensitive=True,
             description="A template generated using manage-dpy tool.",
         )
 
     async def load_cogs(self) -> None:
+        """
+        Dynamically load cogs into the bot.
+
+        Iterates through the configured cogs and attempts to load them as
+        extensions. Logs any errors encountered during loading.
+        """
         for cog in self.config.cogs:
             try:
                 await self.load_extension(f"{self.config.cogs_directory}.{cog}.cog")
@@ -38,7 +48,19 @@ class Bot(commands.AutoShardedBot):
                     f"Could not load extension {cog} {exc.__class__.__name__}: {exc}"
                 )
 
+    async def init_database(self) -> None:
+        """
+        Initialize the database connection.
+
+        Connects to the database using the configured URI and initializes
+        Beanie with the document models.
+        """
+        client = AsyncIOMotorClient(self.config.db.uri)
+        await init_beanie(database=client[self.config.db.name], document_models=models)
+        log.info(f"Successfully connected to the {self.config.db.name!r} database")
+
     async def setup_hook(self) -> Any:
+        await self.init_database()
         await self.load_cogs()
 
     async def on_ready(self) -> Any:
@@ -48,10 +70,10 @@ class Bot(commands.AutoShardedBot):
     async def start(self) -> None:  # type: ignore
         return await super().start(self.config.token, reconnect=True)
 
-    async def get_context( # type: ignore
+    async def get_context(  # type: ignore
         self,
         origin: Union[Message, Interaction],
         *,
         cls: Type[Context] = Context,
-    ) -> Any: # type: ignore
+    ) -> Any:  # type: ignore
         return await super().get_context(origin, cls=cls)
