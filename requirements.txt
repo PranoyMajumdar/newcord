@@ -1,1 +1,7 @@
-discord.py>=2.3.2
+discord.py[speed]
+pymongo[srv]
+beanie
+
+# For development
+black
+mypy

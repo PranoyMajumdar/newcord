@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+import os
 from logging import getLogger
 from typing import TYPE_CHECKING, Any, Sequence, Type, Union
 
 import discord
 from beanie import init_beanie
-from config import Config
 from discord.ext import commands
+from helpers import Config
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from .context import Context
@@ -31,6 +32,7 @@ class Bot(commands.AutoShardedBot):
             case_insensitive=True,
             description="A template generated using manage-dpy tool.",
         )
+        self.owner_ids = self.config.owner_ids
 
     async def load_cogs(self) -> None:
         """
@@ -39,14 +41,19 @@ class Bot(commands.AutoShardedBot):
         Iterates through the configured cogs and attempts to load them as
         extensions. Logs any errors encountered during loading.
         """
-        for cog in self.config.cogs:
-            try:
-                await self.load_extension(f"{self.config.cogs_directory}.{cog}.cog")
-                log.info(f"Successfully loaded {cog!r} cog.")
-            except Exception as exc:
-                log.error(
-                    f"Could not load extension {cog} {exc.__class__.__name__}: {exc}"
-                )
+        for cog in os.listdir(
+            os.path.join(
+                os.path.realpath(os.path.dirname("bot/")), self.config.cogs_directory
+            )
+        ):
+            if not cog.startswith("_"):
+                try:
+                    await self.load_extension(f"{self.config.cogs_directory}.{cog}.cog")
+                    log.info(f"Successfully loaded {cog!r} cog.")
+                except Exception as exc:
+                    log.error(
+                        f"Could not load extension {cog} {exc.__class__.__name__}: {exc}"
+                    )
 
     async def init_database(self) -> None:
         """
@@ -55,9 +62,13 @@ class Bot(commands.AutoShardedBot):
         Connects to the database using the configured URI and initializes
         Beanie with the document models.
         """
-        client = AsyncIOMotorClient(self.config.db.uri)
-        await init_beanie(database=client[self.config.db.name], document_models=models)
-        log.info(f"Successfully connected to the {self.config.db.name!r} database")
+        client = AsyncIOMotorClient(self.config.mongo_uri)
+        await init_beanie(
+            database=client[self.config.database_name], document_models=models
+        )
+        log.info(
+            f"Successfully connected to the {self.config.database_name!r} database"
+        )
 
     async def setup_hook(self) -> Any:
         await self.init_database()

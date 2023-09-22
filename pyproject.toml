@@ -16,6 +16,7 @@ pymongo = {extras = ["srv"], version = "^4.5.0"}
 [tool.poetry.group.dev.dependencies]
 black = "^23.7.0"
 mypy = "^1.5.1"
+discord-py = "^2.3.2"
 
 [build-system]
 requires = ["poetry-core"]
