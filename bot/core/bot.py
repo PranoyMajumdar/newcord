@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import os
 from logging import getLogger
-from typing import TYPE_CHECKING, Any, Sequence, Type, Union
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Sequence, Tuple, Type, Union
 
 import discord
 from beanie import init_beanie
 from discord.ext import commands
-from helpers import Config
+from helpers.config import Config
+from helpers.errors import InvalidCogsDirectory
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from .context import Context
@@ -25,6 +27,7 @@ log = getLogger(__name__)
 
 class Bot(commands.AutoShardedBot):
     def __init__(self) -> None:
+        """Initialize the bot with relevant settings."""
         self.config = Config()
         super().__init__(
             command_prefix=commands.when_mentioned_or(self.config.prefix),
@@ -34,6 +37,40 @@ class Bot(commands.AutoShardedBot):
         )
         self.owner_ids = self.config.owner_ids
 
+    def get_cogs(self) -> Tuple[str, ...]:
+        """
+        Get a tuple of cog paths.
+        Scans the cogs directory for valid cogs and returns their paths.
+        """
+        cogs: Tuple[str, ...] = tuple()
+
+        cogs_directory = self.get_absolute_cogs_dir()
+        for x in cogs_directory.iterdir():
+            if self.is_valid_cog(x):
+                cogs = cogs + (
+                    f"{self.config.cogs_directory}.{x.name}.{x.name.lower()}",
+                )
+        return cogs
+
+    def get_absolute_cogs_dir(self) -> Path:
+        """Get the absolute path to the cogs directory."""
+        cogs_directory = (
+            Path(os.path.realpath(os.path.dirname("bot/"))) / self.config.cogs_directory
+        )
+        if not cogs_directory.is_dir():
+            raise InvalidCogsDirectory
+
+        return cogs_directory
+
+    def is_valid_cog(self, directory: Path) -> bool:
+        """Check if a directory is a valid cog."""
+        return (
+            directory.is_dir()
+            and not directory.name.startswith("_")
+            and f"{directory.name.lower()}"
+            in (i.stem for i in directory.iterdir() if i.name.endswith(".py"))
+        )
+
     async def load_cogs(self) -> None:
         """
         Dynamically load cogs into the bot.
@@ -41,15 +78,11 @@ class Bot(commands.AutoShardedBot):
         Iterates through the configured cogs and attempts to load them as
         extensions. Logs any errors encountered during loading.
         """
-        for cog in os.listdir(
-            os.path.join(
-                os.path.realpath(os.path.dirname("bot/")), self.config.cogs_directory
-            )
-        ):
+        for cog in self.get_cogs():
             if not cog.startswith("_"):
                 try:
-                    await self.load_extension(f"{self.config.cogs_directory}.{cog}.cog")
-                    log.info(f"Successfully loaded {cog!r} cog.")
+                    await self.load_extension(cog)
+                    log.info(f"Successfully loaded {cog.split('.')[2]!r} cog.")
                 except Exception as exc:
                     log.error(
                         f"Could not load extension {cog} {exc.__class__.__name__}: {exc}"
@@ -75,10 +108,12 @@ class Bot(commands.AutoShardedBot):
         await self.load_cogs()
 
     async def on_ready(self) -> Any:
+        """Event handler for when the bot is ready."""
         assert self.user is not None
         return log.info(f"Logged in as {self.user.name} (ID: {self.user.id})")
 
     async def start(self) -> None:  # type: ignore
+        """Start the bot."""
         return await super().start(self.config.token, reconnect=True)
 
     async def get_context(  # type: ignore
