@@ -8,4 +8,4 @@ __all__: Sequence[str] = ("InvalidCogsDirectory",)
 
 
 class InvalidCogsDirectory(DiscordException):
-    """The cogs folder pattern is invalid."""
+    """Exception raised when the specified cog directory is invalid."""

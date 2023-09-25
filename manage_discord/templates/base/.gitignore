@@ -26,5 +26,6 @@ var/
 
 # Poetry files
 poetry.lock
-# Our configuration files
-config.py
+
+# mypy files
+.mypy_cache
