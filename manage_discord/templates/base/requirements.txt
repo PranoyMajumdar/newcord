@@ -1,7 +1,0 @@
-discord.py[speed]
-pymongo[srv]
-beanie
-
-# For development
-black
-mypy
