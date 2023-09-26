@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import os
-from typing import Sequence
+import typing as t
 
 import typer
 
 from newcord.context import Context
-from newcord.controllers import new_command_controller
+from newcord.controllers import init_command_controller
 from newcord.helpers import (
     get_template_dir,
     create_project_path,
@@ -14,14 +14,14 @@ from newcord.helpers import (
     confirm,
 )
 
-__all__: Sequence[str] = ("app",)
+__all__: t.Sequence[str] = ("app",)
 
 
 app = typer.Typer(name="newcord")
 
 
-@app.command(name="new")
-def new_command():
+@app.command(name="init")
+def init_command():
     typer.clear()
 
     project_path = create_project_path()
@@ -43,7 +43,7 @@ def new_command():
     else:
         extras_dir = os.path.join(extras_dir, "_no-database")
 
-    new_command_controller(
+    init_command_controller(
         Context(
             project_location=project_path,
             base=os.path.join(template_dir, "base"),
@@ -52,8 +52,8 @@ def new_command():
     )
 
 
-@app.command(name="cog")
-def cog_command():
+@app.command(name="version")
+def version_command():
     ...
 
 

@@ -6,15 +6,16 @@ import typer
 from typing import TYPE_CHECKING, Any, Sequence
 from newcord.helpers import get_success_message, build_requirements, confirm
 from pip import main
+from pipenv.cli import cli
 
 if TYPE_CHECKING:
     from newcord.context import Context
 
 
-__all__: Sequence[str] = ("new_command_controller",)
+__all__: Sequence[str] = ("init_command_controller",)
 
 
-def new_command_controller(ctx: Context) -> Any:
+def init_command_controller(ctx: Context) -> Any:
     dependencies_installed = False
     ctx.project_location.mkdir(exist_ok=True)
 

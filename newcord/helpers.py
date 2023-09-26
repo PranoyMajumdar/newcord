@@ -6,7 +6,7 @@ import questionary
 
 from pathlib import Path
 from questionary import Style
-from typing import Any, Literal, Optional, Sequence
+from typing import Any, Literal, Sequence
 
 __all__: Sequence[str] = (
     "style",
@@ -47,10 +47,8 @@ def get_success_message(bot_dir: Path, dependencies_installed: bool) -> str:
     ):
         return typer.style(text=msg, fg=color, bold=is_bold, underline=underline)
 
-    start_command = f"python {os.path.join(bot_dir, 'bot', 'bot.py') if want_navigation else 'bot/bot.py'}"
-    req_install_command = f"{os.path.join(bot_dir, 'requirements.txt') if want_navigation else 'requirements.txt'}"
     steps = [
-        f"{style_message('Start your bot:')} {style_message(start_command, 'bright_cyan')}\n",
+        f"{style_message('Start your bot:')} {style_message('python bot/bot.py', 'bright_cyan')}\n",
         f"{style_message('Discord.py docs:')} {style_message('https://discordpy.readthedocs.io/en/stable/', 'bright_cyan')}\n",
     ]
 
@@ -63,7 +61,7 @@ def get_success_message(bot_dir: Path, dependencies_installed: bool) -> str:
     if not dependencies_installed:
         steps.insert(
             1 if want_navigation else 0,
-            f"{style_message('Install dependencies:')} {style_message(f'pip install -r {req_install_command}', 'bright_cyan')}\n",
+            f"{style_message('Install dependencies:')} {style_message(f'pip install -r requirements.txt', 'bright_cyan')}\n",
         )
 
     return f"""
@@ -94,14 +92,9 @@ def select_from_directory(prompt: str, directory: str):
     )
 
 
-def ask_question(prompt: str, default: Optional[str]):
-    styles = [
-        typer.style(text="?", fg="bright_cyan", bold=True),
-        typer.style(text=prompt, fg="bright_white", bold=True),
-    ]
-    return typer.prompt(
-        text=" ".join(styles), default=default, type=str, prompt_suffix="›"
-    )
+def ask_question(prompt: str, default: str = ""):
+
+    return questionary.text(message=f"{prompt} ›", default=default, style=style).unsafe_ask()
 
 
 def confirm(prompt: str, default: bool = True):
@@ -109,7 +102,7 @@ def confirm(prompt: str, default: bool = True):
 
 
 def create_project_path() -> Path:
-    return Path(ask_question("Where would you like to create your project", "."))
+    return Path(ask_question("Where would you like to create your project", "./"))
 
 
 def build_requirements(database: Literal["mongodb", "no-database"]) -> str:
