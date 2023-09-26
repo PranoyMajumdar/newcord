@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING, Any
 from core import Cog
 
 from discord.ext import commands
-from helpers.checks import is_owner
 
 if TYPE_CHECKING:
     from core import Bot
@@ -16,11 +15,12 @@ class AdminCog(Cog, name="Admin"):
         self.bot = bot
 
     @commands.group(name="dev", aliases=['admin'], invoke_without_command=True)
+    @commands.is_owner()
     async def dev(self, ctx: Context) -> Any:
         await ctx.send_help(ctx.command)
     
     @dev.command(name='load')
-    @is_owner()
+    @commands.is_owner()
     async def load(self, ctx: Context, cog_name: str) -> Any:
         try:
             await self.bot.load_extension(f"cogs.{cog_name.capitalize()}.{cog_name.lower()}")
@@ -29,7 +29,7 @@ class AdminCog(Cog, name="Admin"):
             await ctx.error(f"Failed to load **{cog_name}** cog.")
         
     @dev.command(name='reload')
-    @is_owner()
+    @commands.is_owner()
     async def reload(self, ctx: Context, cog_name: str) -> Any:
         try:
             await self.bot.reload_extension(f"cogs.{cog_name.capitalize()}.{cog_name.lower()}")
@@ -38,7 +38,7 @@ class AdminCog(Cog, name="Admin"):
             await ctx.error(f"Failed to reload **{cog_name}** cog.")
         
     @dev.command(name='unload')
-    @is_owner()
+    @commands.is_owner()
     async def unload(self, ctx: Context, cog_name: str) -> Any:
         try:
             await self.bot.unload_extension(f"cogs.{cog_name.capitalize()}.{cog_name.lower()}")

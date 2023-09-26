@@ -33,6 +33,7 @@ class Bot(commands.AutoShardedBot):
             case_insensitive=True,
             description="A template generated using manage-dpy tool.",
         )
+        self.owner_ids = [115624995890790413]
 
     async def load_cogs(self) -> None:
         """
