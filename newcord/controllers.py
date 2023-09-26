@@ -31,7 +31,7 @@ def new_command_controller(ctx: Context) -> Any:
         f.write(build_requirements("mongodb"))
 
     # Ask to install dependencies
-    if confirm("Do you want to install the dependencies"):
+    if confirm("Would you like to install the required dependencies"):
         s1 = typer.style(
             text="Installing dependencies from", fg="bright_white", bold=True
         )
