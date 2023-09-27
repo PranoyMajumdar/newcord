@@ -31,9 +31,8 @@ class Bot(commands.AutoShardedBot):
             command_prefix=commands.when_mentioned_or(self.config.prefix),
             intents=discord.Intents.all(),
             case_insensitive=True,
-            description="A template generated using manage-dpy tool.",
+            description="A template generated using 'newcord'.",
         )
-        self.owner_ids = [115624995890790413]
 
     async def load_cogs(self) -> None:
         """

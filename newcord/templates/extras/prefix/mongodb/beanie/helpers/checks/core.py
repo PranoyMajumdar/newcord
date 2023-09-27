@@ -18,7 +18,7 @@ def is_guild_owner() -> Check:
         if ctx.guild is None or ctx.guild.owner_id == ctx.author.id:
             return True
 
-        raise NotGuildOwner()
+        raise NotGuildOwner("Only guild owner can use this command.")
 
     return commands.check(predicate)
 

@@ -28,11 +28,10 @@ class ErrorsCog(Cog, name="Errors"):
             return
         
         if isinstance(error, commands.CheckFailure):
-            if isinstance(error, commands.NotOwner):
-                return await ctx.error(error.args[0])
             if isinstance(error, errors.NotGuildOwner):
                 owner_mention = f'<@{ctx.guild.owner_id}>' if ctx.guild else 'server owner(s)'
                 return await ctx.error(f"Only {owner_mention} have permission to use this command.")
+            return await ctx.error(error.args[0])
 
 
 async def setup(bot: Bot) -> None:
