@@ -5,11 +5,17 @@ import typer
 
 from typing import TYPE_CHECKING, Any, Sequence
 from newcord.helpers import get_success_message, build_requirements, confirm
-from pip import main
-from pipenv.cli import cli
+
+try:
+    from pip import main
+    HAS_PIP = True
+except ImportError:
+    HAS_PIP = False
+
 
 if TYPE_CHECKING:
     from newcord.context import Context
+    from pip import main
 
 
 __all__: Sequence[str] = ("init_command_controller",)
@@ -31,23 +37,24 @@ def init_command_controller(ctx: Context) -> Any:
     with open(ctx.project_location / "requirements.txt", "w") as f:
         f.write(build_requirements("mongodb"))
 
-    # Ask to install dependencies
-    if confirm("Would you like to install the required dependencies"):
-        s1 = typer.style(
-            text="Installing dependencies from", fg="bright_white", bold=True
-        )
-        s2 = typer.style(
-            text=f"{ctx.project_location / 'requirements.txt'}",
-            fg="bright_cyan",
-            bold=True,
-            underline=True,
-        )
-        typer.echo(f"{s1} {s2}")
-        try:
-            main(["install", "-r", f"{ctx.project_location / 'requirements.txt'}"])
-            dependencies_installed = True
-        except:
-            pass
+    if HAS_PIP:
+        # Ask to install dependencies
+        if confirm("Would you like to install the required dependencies"):
+            s1 = typer.style(
+                text="Installing dependencies from", fg="bright_white", bold=True
+            )
+            s2 = typer.style(
+                text=f"{ctx.project_location / 'requirements.txt'}",
+                fg="bright_cyan",
+                bold=True,
+                underline=True,
+            )
+            typer.echo(f"{s1} {s2}")
+            try:
+                main(["install", "-r", f"{ctx.project_location / 'requirements.txt'}"])
+                dependencies_installed = True
+            except:
+                pass
 
     typer.echo(
         get_success_message(
