@@ -17,6 +17,6 @@ class Context(commands.Context):
 
     async def success(self, content: str, **kwargs: Any) -> Any:
         return await super().send(f"\U00002705 | {content}", **kwargs)
-    
+
     async def error(self, content: str, **kwargs: Any) -> Any:
         return await super().send(f"\U0000274e | {content}", **kwargs)

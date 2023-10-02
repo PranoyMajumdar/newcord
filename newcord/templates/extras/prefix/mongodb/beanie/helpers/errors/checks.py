@@ -10,4 +10,3 @@ __all__: Sequence[str] = ("NotGuildOwner",)
 
 class NotGuildOwner(commands.CheckFailure):
     """Only guild owner can use this command."""
-

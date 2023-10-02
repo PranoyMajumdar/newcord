@@ -21,5 +21,3 @@ def is_guild_owner() -> Check:
         raise NotGuildOwner("Only guild owner can use this command.")
 
     return commands.check(predicate)
-
-

@@ -10,11 +10,11 @@ from core import Cog
 if TYPE_CHECKING:
     from core import Bot, Context
 
+
 class ErrorsCog(Cog, name="Errors"):
     def __init__(self, bot: Bot) -> None:
         self.bot = bot
 
-    
     @Cog.listener()
     async def on_command_error(self, ctx: Context, error: Exception) -> Any:
         ignored = (
@@ -26,11 +26,15 @@ class ErrorsCog(Cog, name="Errors"):
 
         if isinstance(error, ignored):
             return
-        
+
         if isinstance(error, commands.CheckFailure):
             if isinstance(error, errors.NotGuildOwner):
-                owner_mention = f'<@{ctx.guild.owner_id}>' if ctx.guild else 'server owner(s)'
-                return await ctx.error(f"Only {owner_mention} have permission to use this command.")
+                owner_mention = (
+                    f"<@{ctx.guild.owner_id}>" if ctx.guild else "server owner(s)"
+                )
+                return await ctx.error(
+                    f"Only {owner_mention} have permission to use this command."
+                )
             return await ctx.error(error.args[0])
 
 

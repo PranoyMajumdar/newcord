@@ -7,7 +7,6 @@ import discord
 from beanie import init_beanie
 from discord.ext import commands
 from helpers.config import Config
-from helpers.utilities import get_cogs
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from .context import Context
@@ -41,11 +40,11 @@ class Bot(commands.AutoShardedBot):
         Iterates through the configured cogs and attempts to load them as
         extensions. Logs any errors encountered during loading.
         """
-        for cog in get_cogs(self.config):
+        for cog in self.config.cogs:
             if not cog.startswith("_"):
                 try:
-                    await self.load_extension(cog)
-                    log.info(f"Successfully loaded {cog.split('.')[2]!r} cog.")
+                    await self.load_extension(f"{self.config.cogs_directory}.{cog}")
+                    log.info(f"Successfully loaded {cog!r} cog.")
                 except Exception as exc:
                     log.error(
                         f"Could not load extension {cog} {exc.__class__.__name__}: {exc}"
